@@ -61,7 +61,8 @@ class TJF_ARX_cipher{
             *((str) + 0) = (uint8_t) ((x) >> 24);       \
         }
         unsigned int x[8];
-        std::vector<unsigned char> nonce;
+        std::vector<unsigned char> nonce_char;
+        unsigned int *nonce_int;
         unsigned int w[8];
         unsigned int mu[8];
         unsigned int nu[8];
@@ -75,28 +76,31 @@ class TJF_ARX_cipher{
                 std::cout<<"Error opening file"<<std::endl;
                 return;
             }
-            init_cipher();
+            
             std::vector<unsigned char> raw(std::istreambuf_iterator<char>(input), {});
             if (raw.size()<32){
                 std::cout<<"File size less than 32 bytes"<<std::endl;
                 return;
             }
             unsigned char *raw_pointer = &raw[0];
+            nonce_int=new unsigned int[4];
             if (type){
                 set_nonce();
+                init_cipher();
                 std::cout<<"Encryption time: "<<CTR_mode(raw_pointer,raw.size())<<" ms"<<std::endl;
                 for(size_t i=0; i<16; ++i)
-                    raw.push_back(nonce[i]);
+                    raw.push_back(nonce_char[i]);
             }
             else{
-                std::vector<unsigned char>().swap(nonce);
+                std::vector<unsigned char>().swap(nonce_char);
                 for (size_t i=0; i<16; i++){
-                    nonce.push_back(raw.back());
+                    nonce_char.push_back(raw.back());
                     raw.pop_back();
                 }
-                std::reverse(nonce.begin(), nonce.end());
+                std::reverse(nonce_char.begin(), nonce_char.end());
                 for (int i=0; i<4; ++i)
-                    STR_PACK32(&nonce[i<<2], &x[i+4]);
+                    STR_PACK32(&nonce_char[i<<2], &nonce_int[i]);
+                init_cipher();
                 std::cout<<"Decryption time: "<<CTR_mode(raw_pointer,raw.size())<<" ms"<<std::endl;
             }
             writeFileBytes(output_name.c_str(),raw);
@@ -108,7 +112,7 @@ class TJF_ARX_cipher{
         void init_cipher(){
             std::cout<<"Password: ";
             getline(std::cin, password);
-            key_init.init(password);
+            key_init.init(password,nonce_int);
             tjf.init_dt(0.1);
             tjf.init_val(   
                 key_init.get_alpha(),   key_init.get_beta(), 
@@ -123,6 +127,8 @@ class TJF_ARX_cipher{
             std::string ().swap(password);
             for (size_t i=0; i<1000; ++i)
                 tjf.get_rand_from_system();
+            for (int i=4; i<8; ++i)
+                x[i]=nonce_int[i-4];
             return;
         }
         void mu_nu_init(){
@@ -145,7 +151,7 @@ class TJF_ARX_cipher{
         }
         void generate_keystream(){
             x[0]=tjf.get_rand_from_system();
-            x[1]=tjf.get_rand_from_system();
+            x[1]=tjf.get_rand_from_system2();
             x[2]=counter;
             x[3]=(counter>>32);
             for (j=0; j<8; ++j)
@@ -159,7 +165,7 @@ class TJF_ARX_cipher{
         }
         size_t CTR_mode(unsigned char *input, int input_size){
             mu_nu_init();
-            tjf.init_dt(0.001);
+            tjf.init_dt(0.01);
             int num_block=input_size/32;
             counter=0;
             auto start = std::chrono::steady_clock::now();
@@ -181,9 +187,9 @@ class TJF_ARX_cipher{
         }
         void set_nonce(){
             for (int i=0; i<16; ++i)
-                nonce.push_back(static_cast<unsigned char>(random_nonce()%256));
+                nonce_char.push_back(static_cast<unsigned char>(random_nonce()%256));
             for (int i=0; i<4; ++i)
-                STR_PACK32(&nonce[i<<2], &x[i+4]);
+                STR_PACK32(&nonce_char[i<<2], &nonce_int[i]);
             return;
         }
         void clear(){

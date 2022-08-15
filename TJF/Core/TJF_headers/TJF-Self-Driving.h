@@ -21,7 +21,7 @@ class TJF_SD{
         Poly pn_;
         Poly pn_next;
     public:
-        TJF(){
+        TJF_SD(){
             an_=0.0;
             bn_=0.0;
             dn_=0.0;
@@ -72,17 +72,17 @@ class TJF_SD{
             return dist(mt, pick(min, max));
         }
         void make_init(){
-            dn_next= dn_+af();
-            dn_next_next= dn_next+af();
+            dn_next= dn_+1.0;
             cn_=dn_+(dn_next - dn_)/cast_d(2);
+            dn_next_next= dn_next+mod_float(an_+bn_*pn_.get_P(dn_next-cn_));
             cn_next = dn_next + (dn_next_next-dn_next)/cast_d(2);
             pn_.set(alpha_, s_);
             pn_next.set(alpha_,s_);
             t=dn_;
             return ;
         }
-        double af(){
-            return 1.0;
+        double mod_float(double input){
+            return fabs(fmod(input,1.0));
         }
         double make_r(){
             do{
@@ -91,7 +91,7 @@ class TJF_SD{
                     t+=dt_;
                     return f_temp;
                 }
-                s_next = get_s(fabs(fmod(an_+bn_*pn_.get_P(t-cn_-dt_),1.0))); 
+                s_next = get_s(mod_float(an_+bn_*pn_.get_P(t-cn_))); 
                 pn_next.set_n(s_next);
                 bn_next=bn_*pn_.get_DP(dn_next-cn_)/pn_next.get_DP(dn_next-cn_next);
                 
@@ -105,7 +105,7 @@ class TJF_SD{
                 dn_=dn_next;
                 dn_next=dn_next_next;
                 cn_=cn_next;
-                dn_next_next= dn_next+1.0*fabs(fmod(an_+bn_*pn_.get_P(t-cn_-dt_),1.0));
+                dn_next_next= dn_next+1.0*fabs(fmod(an_+bn_*pn_.get_P(t-cn_),1.0));
                 cn_next = dn_next + (dn_next_next-dn_next)/cast_d(2);
                 s_=s_next;
             }while(true);

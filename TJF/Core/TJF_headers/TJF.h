@@ -72,6 +72,12 @@ class TJF{
             w=w-(int)w;
             return w*4294967296;
         }
+        unsigned int get_rand_from_system2(){
+            w=bn_*pn_.get_DP(t-cn_);
+            w=fabs(w);
+            w=w-(int)w;
+            return w*4294967296;
+        }
         void clear(){
             alpha_= 0.0;
             beta_=  0.0;

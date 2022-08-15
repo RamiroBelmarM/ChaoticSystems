@@ -15,6 +15,7 @@ class Key_Init{
         double b0;
         double d0;
         double l0;
+        unsigned int *nonce;
         unsigned int key_left[8];
         unsigned int key_right[8];
         ARX arx;
@@ -37,11 +38,12 @@ class Key_Init{
             0xffc00b31,
             0x68581511,
             0x64f98fa7,
-            0xbefa4fa4,
+            0xbefa4fa4
         };
 
     public:
-        void init(std::string &input){
+        void init(std::string &input,unsigned int *nonce_input){
+            nonce=nonce_input;
             pass=input;
             StrToBin();
             Padding();
@@ -112,6 +114,7 @@ class Key_Init{
                 key_left[i]=std::bitset<32>(pass.substr((i<<5),32)).to_ulong();
                 key_right[i]=std::bitset<32>(pass.substr(((i+8)<<5),32)).to_ulong();
             }
+            swap_key_nonce();
             arx.ARXN(key_left,4);
             arx.ARXN(key_right,4);
             for(size_t i=0; i<8; ++i){
@@ -130,6 +133,26 @@ class Key_Init{
             return;
         }
 
+        void swap_key_nonce(){
+            unsigned int temp;
+            temp=key_left[3];
+            key_left[3]=nonce[0];
+            nonce[0]=temp;
+
+            temp=key_left[7];
+            key_left[7]=nonce[1];
+            nonce[1]=temp;
+
+            temp=key_right[3];
+            key_right[3]=nonce[2];
+            nonce[2]=temp;
+
+            temp=key_right[7];
+            key_right[7]=nonce[3];
+            nonce[3]=temp;    
+
+            return;
+        }
         
         void BinToDouble(){
             std::vector<double> sub_double;
