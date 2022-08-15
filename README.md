@@ -1,4 +1,4 @@
-# A versatile mathematical function for stable and chaotic systems.
+# A versatile mathematical function for stable and chaotic systems: A data encryption application.
 DOI:XXXYYYZZZ
 
 Here you find the repository of the above mentioned paper:
