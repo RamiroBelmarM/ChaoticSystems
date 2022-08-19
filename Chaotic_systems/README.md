@@ -1,4 +1,4 @@
-# NIST-STS for eleven chaotic system used as the entropy source of an encryption algorithm founded in the literature
+# NIST-STS for eleven chaotic systems used as the entropy source of an encryption algorithm founded in the literature
 
 The results shown in the paper can be found in the ```result.txt``` archive in every subfolder.
 
