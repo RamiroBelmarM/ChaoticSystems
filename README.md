@@ -1,5 +1,5 @@
 # A versatile mathematical function for stable and chaotic systems: A data encryption application.
-DOI:XXXYYYZZZ
+DOI:https://doi.org/10.1016/j.chaos.2022.113047
 
 Here you find the repository of the above mentioned paper:
 
