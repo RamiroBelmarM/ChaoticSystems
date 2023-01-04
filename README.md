@@ -24,5 +24,5 @@ Chaos
 # Download
 Please use the top-right button to download the code (``` Code > Download Zip ```) or using the following command:
 ```terminal
-$ git clone https://github.com/RamiroBelmarM/Chaos.git
+$ git clone https://github.com/RamiroBelmarM/ChaoticSystems.git
 ```
